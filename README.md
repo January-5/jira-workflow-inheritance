@@ -31,16 +31,30 @@ atlas-create-jira-plugin --group-id igsl.com --artifact-id jira-workflow-inherit
 在本目录执行（首次需要联网下载依赖）：
 
 ```powershell
+$env:ATLAS_OPTS = "$env:ATLAS_OPTS -Dmaven.repo.local=D:/code/pluginforjira/.maven/repository"
 atlas-package -B -ntp '-Dmaven.repo.local=D:/code/pluginforjira/.maven/repository'
 ```
 
+`ATLAS_OPTS` 同时为 SDK 前置插件解析指定仓库；仅传命令行参数时，该前置步骤仍可能访问默认仓库。这里只设置当前 PowerShell 会话变量，不修改全局配置。依赖齐全后可添加 `-o` 离线打包；仍需检查日志中的最终 `BUILD SUCCESS`，SDK 脚本在前置失败时可能返回 0。
+
 成功后主插件产物为 `target/jira-workflow-inheritance-1.0.0-SNAPSHOT.jar`。示例单元测试不代表业务功能或 DC 多节点兼容性验收。
+
+如果 `atlas-package` 卡在前置插件解析，可使用同一 SDK 提供的 Maven 包装命令直接执行相同的 `package` 目标：
+
+```powershell
+atlas-mvn package -B -ntp '-Dmaven.repo.local=D:/code/pluginforjira/.maven/repository'
+```
+
+## 本次验证结果
+
+2026-09-28：首次 `atlas-package` 构建成功；移除测试插件开发商占位符后，使用 `atlas-mvn package -o -B -ntp` 及上述仓库参数完成最终离线打包。官方示例单元测试 1 项通过，失败及错误均为 0。主插件与测试插件描述文件均无 `vendor` 节点。未启动 Jira，未运行容器内集成测试或 DC 多节点测试。
 
 ## 后续本地运行
 
 需要启动开发 Jira 时再执行：
 
 ```powershell
+$env:ATLAS_OPTS = "$env:ATLAS_OPTS -Dmaven.repo.local=D:/code/pluginforjira/.maven/repository"
 atlas-run '-Dmaven.repo.local=D:/code/pluginforjira/.maven/repository'
 ```
 
