@@ -1,6 +1,6 @@
 # Jira 工作流继承与进度管理插件框架
 
-本目录由 Atlassian 官方 `atlas-create-jira-plugin` 命令生成。当前仅包含插件框架、Spring Scanner 示例组件、静态资源及示例测试，尚未实现工作流继承、配置追加或进度业务功能。
+本目录由 Atlassian 官方 `atlas-create-jira-plugin` 命令生成。已开始实现单级继承校验、已发布进度规则快照和流转目标状态进度计算，详见 [实现记录](docs/implementation-status.md)。当前规则尚未接入 Jira 管理界面、工作流发布或 Issue 字段写入。
 
 ## 项目参数
 
@@ -47,7 +47,7 @@ atlas-mvn package -B -ntp '-Dmaven.repo.local=D:/code/pluginforjira/.maven/repos
 
 ## 本次验证结果
 
-2026-09-28：首次 `atlas-package` 构建成功；移除测试插件开发商占位符后，使用 `atlas-mvn package -o -B -ntp` 及上述仓库参数完成最终离线打包。官方示例单元测试 1 项通过，失败及错误均为 0。主插件与测试插件描述文件均无 `vendor` 节点。未启动 Jira，未运行容器内集成测试或 DC 多节点测试。
+2026-09-28：使用 `atlas-mvn package -o -B -ntp` 及上述仓库参数完成离线打包，`BUILD SUCCESS`。25 项单元测试通过（24 项业务规则测试、1 项官方示例测试），失败、错误和跳过均为 0。主插件与测试插件描述文件均无 `vendor` 节点。未启动 Jira，未运行容器内集成测试或 DC 多节点测试。
 
 ## 后续本地运行
 
@@ -63,10 +63,10 @@ atlas-run '-Dmaven.repo.local=D:/code/pluginforjira/.maven/repository'
 ## 目录
 
 - `pom.xml`：Jira 版本、依赖和 AMPS 构建配置。
-- `src/main/java`：官方示例接口和组件，后续按模块逐步实现。
+- `src/main/java`：官方示例接口和组件，以及 `igsl.com.jira.workflow.domain` 业务规则。
 - `src/main/resources/atlassian-plugin.xml`：插件及 Web Resource 声明。
 - `src/main/resources/META-INF/spring`：Spring Scanner 配置。
-- `src/test/java/ut`：官方示例单元测试。
+- `src/test/java/ut`：继承和进度规则单元测试，以及官方示例单元测试。
 - `src/test/java/it`：需要 Jira 容器的官方示例集成测试。
 
 ## 官方参考
