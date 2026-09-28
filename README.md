@@ -6,15 +6,14 @@
 
 | 参数 | 值 |
 |---|---|
-| Group ID | `igsl.com`（按用户指定，未改成域名倒写） |
+| Group ID | `com.igsl` |
 | Artifact ID | `jira-workflow-inheritance` |
 | 版本 | `1.0.0-SNAPSHOT` |
 | Java 包 | `igsl.com.jira.workflow` |
 | Plugin Key | `igsl.com.jira-workflow-inheritance` |
 | Jira | `9.12.11` |
 | Atlassian SDK / AMPS | `9.1.1` |
-| 构建环境 | JDK 17，编译目标 Java 11 |
-| 开发商 | 未配置名称和网址 |
+| 构建环境 | JDK 17 |
 
 ## 创建命令
 
