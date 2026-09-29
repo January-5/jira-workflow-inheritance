@@ -1,6 +1,6 @@
 # Jira 工作流继承与进度管理插件框架
 
-本目录由 Atlassian 官方 `atlas-create-jira-plugin` 命令生成。已实现管理员配置页面、继承关系、进度快照、只读百分比字段、流转事件写入及恢复记录，并提供结构合并预览。完整自动发布和原生入口保护仍在开发，当前为开发预览版本，详见 [实现记录](docs/implementation-status.md) 和 [实现建议规则](docs/implementation-decisions.md)。
+本目录由 Atlassian 官方 `atlas-create-jira-plugin` 命令生成。已实现管理员配置、继承关系、进度快照、只读百分比字段、流转事件写入及恢复、结构合并预览，以及管理页中的原生草稿校验和发布。子流程结构自动发布和全入口保护仍在开发，当前为开发预览版本，详见 [实现记录](docs/implementation-status.md) 和 [实现建议规则](docs/implementation-decisions.md)。
 
 ## 项目参数
 
@@ -49,6 +49,8 @@ atlas-mvn package -B -ntp '-Dmaven.repo.local=D:/code/pluginforjira/.maven/repos
 2026-09-29：编译目标切换为 Java 17。构建及测试结果见 [实现记录](docs/implementation-status.md)。未启动 Jira，未运行容器内集成测试或 DC 多节点测试。安装目标 Jira 也必须使用 Java 17；该产物不能在 Java 11 上加载。
 
 管理员入口：`<Jira 基础地址>/rest/workflow-inheritance/1.0/admin/console`。必须具有 Jira 管理员权限。先初始化进度字段，再配置父工作流各状态百分比并确认规则生效。结构同步预览不修改或发布原生工作流。
+
+活动工作流存在 Jira 草稿时，可在管理页先“校验发布”，再“发布已校验草稿”。发布异常可查看持久化记录；恢复只校验并接续规则生效，不重复发布草稿。实例验证步骤见 [发布验收清单](docs/publication-acceptance.md)。
 
 ## 后续本地运行
 

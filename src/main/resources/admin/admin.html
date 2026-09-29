@@ -21,6 +21,15 @@
 <button id="retry" type="button">重试进度同步</button><button id="preview-sync" type="button">预览结构同步</button><button id="resolve" type="button">确认已处理并校验规则</button></div>
 </form>
 <pre id="sync-preview" hidden></pre>
+<section aria-label="原生草稿发布"><h3>发布工作流草稿</h3>
+<p>先保存进度草稿，再校验并发布。发布后已有 Issue 的状态和进度保持不变。</p>
+<button id="publication-preview" type="button">校验发布</button>
+<button id="publication-publish" type="button" disabled>发布已校验草稿</button>
+<p id="publication-status" role="status"></p>
+<button id="publication-recover" type="button" hidden>恢复已发布流程的规则</button>
+<button id="publication-dismiss" type="button" hidden>关闭未发布的失败记录</button>
+<button id="publication-resolve" type="button" hidden>确认已人工处理并关闭记录</button>
+</section>
 <form id="child-form"><h3>创建子流程</h3><label>名称 <input id="child-name" required maxlength="255"></label>
 <label>说明 <input id="child-description" maxlength="2000"></label><button>创建</button></form>
 <h3>操作记录</h3><button id="audit-refresh" type="button">刷新记录</button><ol id="audit"></ol>

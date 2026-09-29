@@ -38,4 +38,15 @@ public final class DescriptorXml {
         source.writeXML(new java.io.PrintWriter(xml), 0);
         return xml.toString();
     }
+    /** Native publication changes these three root metadata entries without changing workflow behavior. */
+    public static String contentFingerprint(WorkflowDescriptor source) {
+        WorkflowDescriptor copy = workflow(source);
+        for (String key : java.util.List.of(com.atlassian.jira.workflow.JiraWorkflow.JIRA_META_UPDATE_AUTHOR_NAME,
+                com.atlassian.jira.workflow.JiraWorkflow.JIRA_META_UPDATE_AUTHOR_KEY,
+                com.atlassian.jira.workflow.JiraWorkflow.JIRA_META_UPDATED_DATE)) copy.getMetaAttributes().remove(key);
+        try {
+            return java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(copy.asXML().getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        } catch (java.security.NoSuchAlgorithmException impossible) { throw new IllegalStateException(impossible); }
+    }
 }

@@ -106,7 +106,10 @@ public class ConfigurationService {
             if (config.parent != null) throw new IllegalArgumentException("Child activation belongs to the synchronization process");
             if (!live.getLinkedStatusIds().containsAll(config.inheritedStatuses)) throw new IllegalArgumentException("Parent states cannot be deleted");
             new PublishedProgressRules(name, "pending", live.getLinkedStatusIds(), config.draftProgress, Set.of(), Map.of());
-            boolean onlyProgressChanged = Objects.equals(config.workflowFingerprint, fingerprint(live));
+            boolean onlyProgressChanged = config.publishedDescriptor == null
+                    ? Objects.equals(config.workflowFingerprint, fingerprint(live))
+                    : Objects.equals(DescriptorXml.contentFingerprint(DescriptorXml.workflow(config.publishedDescriptor)),
+                            DescriptorXml.contentFingerprint(live.getDescriptor()));
             config.inheritedStatuses = new LinkedHashSet<>(live.getLinkedStatusIds());
             config.publishedProgress = new LinkedHashMap<>(config.draftProgress);
             config.publishedRevision = UUID.randomUUID().toString();
@@ -173,7 +176,11 @@ public class ConfigurationService {
             if (!Objects.equals(fingerprint(requireWorkflow(parent.workflow)), parent.workflowFingerprint)) {
                 throw new IllegalArgumentException("Parent changed since progress activation; confirm parent first");
             }
-            synchronizeProgress(parent, childName, Objects.equals(child.parentFingerprint, parent.workflowFingerprint), user.getKey());
+            boolean sameParentContent = child.parentDescriptor != null && parent.publishedDescriptor != null
+                    ? Objects.equals(DescriptorXml.contentFingerprint(DescriptorXml.workflow(child.parentDescriptor)),
+                            DescriptorXml.contentFingerprint(DescriptorXml.workflow(parent.publishedDescriptor)))
+                    : Objects.equals(child.parentFingerprint, parent.workflowFingerprint);
+            synchronizeProgress(parent, childName, sameParentContent, user.getKey());
             return store.get(childName);
         });
     }

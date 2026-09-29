@@ -29,9 +29,14 @@ public class ConfigurationStore {
     }
 
     public <T> T locked(String scope, Supplier<T> work) {
+        return exclusive(scope, () -> transactions.execute(work::get));
+    }
+
+    /** Holds a cluster lock without wrapping external Jira mutations in a SAL transaction. */
+    public <T> T exclusive(String scope, Supplier<T> work) {
         Lock lock = locks.getLockForName(PREFIX + digest(scope));
         lock.lock();
-        try { return transactions.execute(work::get); }
+        try { return work.get(); }
         finally { lock.unlock(); }
     }
 

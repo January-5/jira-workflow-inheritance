@@ -3,6 +3,7 @@
     const $ = id => document.getElementById(id);
     const root = window.location.pathname.replace(/\/console\/?$/, '');
     let current = null, start = 0, busy = false, recoveryCursor = '0:0';
+    let publicationPreview = null, publicationAttempt = null;
     async function request(path, body) {
         const response = await fetch(root + path, body === undefined ? {credentials: 'same-origin'} : {
             method: 'POST', credentials: 'same-origin',
@@ -29,6 +30,7 @@
         $('details').hidden = true; current = null;
     }
     async function load(name) {
+        publicationPreview = null; $('publication-publish').disabled = true;
         current = await request('/configuration?workflow=' + encodeURIComponent(name));
         const config = current.configuration || {};
         const inherited = new Set(config.inheritedStatuses || []);
@@ -64,6 +66,8 @@
         $('preview-sync').hidden = !config.parent; $('sync-preview').hidden = true;
         $('child-form').hidden = !!config.parent || !config.publishedRevision;
         $('details').hidden = false;
+        $('publication-preview').disabled = !current.hasDraft || !config.version;
+        await publicationStatus();
         await audit();
     }
     async function audit() {
@@ -98,6 +102,38 @@
         await request('/children', body); await load(body.workflow); report('子流程已创建，可通过 Jira 工作流方案使用。');
     }); });
     $('audit-refresh').onclick = () => run(audit);
+    async function publicationStatus() {
+        publicationAttempt = await request('/../publication?workflow=' + encodeURIComponent(current.name));
+        $('publication-status').textContent = publicationAttempt
+            ? '发布记录：' + publicationAttempt.state + (publicationAttempt.error ? '；' + publicationAttempt.error : '') : '暂无发布记录。';
+        const pending = publicationAttempt && !['APPLIED', 'DISMISSED', 'RESOLVED'].includes(publicationAttempt.state);
+        $('publication-recover').hidden = !pending; $('publication-dismiss').hidden = !pending;
+        $('publication-resolve').hidden = !pending;
+    }
+    $('publication-preview').onclick = () => run(async () => {
+        publicationPreview = null; $('publication-publish').disabled = true;
+        publicationPreview = await request('/../publication/preview', base());
+        $('publication-status').textContent = '发布校验通过；目标状态 ID：' + publicationPreview.statuses.join('、');
+        $('publication-publish').disabled = false;
+    });
+    $('publication-publish').onclick = () => run(async () => {
+        if (!publicationPreview) return;
+        const body = publicationPreview; publicationPreview = null; $('publication-publish').disabled = true;
+        try { await request('/../publication/publish', body); await load(body.workflow); report('原生草稿及进度规则已发布，请查看子流程同步状态。'); }
+        finally { await publicationStatus(); }
+    });
+    $('publication-recover').onclick = () => run(async () => {
+        try { await request('/../publication/recover', {workflow: current.name, attemptId: publicationAttempt.id}); await load(current.name); report('已恢复规则；未重复发布原生草稿。'); }
+        finally { await publicationStatus(); }
+    });
+    $('publication-dismiss').onclick = () => run(async () => {
+        await request('/../publication/dismiss', {workflow: current.name, attemptId: publicationAttempt.id});
+        await publicationStatus(); report('失败记录已关闭，原生工作流和草稿保持不变。');
+    });
+    $('publication-resolve').onclick = () => run(async () => {
+        await request('/../publication/resolve', {workflow: current.name, attemptId: publicationAttempt.id});
+        await publicationStatus(); report('已校验当前流程及生效规则，发布记录已关闭。');
+    });
     $('setup-field').onclick = () => run(async () => {
         const fields = await request('/field', {});
         $('field-info').textContent = fields.map(field => field.name + '：' + field.id + '；JQL 示例：' + field.jql).join('；');
