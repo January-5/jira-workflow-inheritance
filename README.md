@@ -1,6 +1,6 @@
 # Jira 工作流继承与进度管理插件框架
 
-本目录由 Atlassian 官方 `atlas-create-jira-plugin` 命令生成。已开始实现单级继承校验、已发布进度规则快照和流转目标状态进度计算，详见 [实现记录](docs/implementation-status.md)。当前规则尚未接入 Jira 管理界面、工作流发布或 Issue 字段写入。
+本目录由 Atlassian 官方 `atlas-create-jira-plugin` 命令生成。已实现管理员配置页面、继承关系、进度快照、只读百分比字段、流转事件写入及恢复记录，并提供结构合并预览。完整自动发布和原生入口保护仍在开发，当前为开发预览版本，详见 [实现记录](docs/implementation-status.md) 和 [实现建议规则](docs/implementation-decisions.md)。
 
 ## 项目参数
 
@@ -13,7 +13,7 @@
 | Plugin Key | `igsl.com.jira-workflow-inheritance` |
 | Jira | `9.12.11` |
 | Atlassian SDK / AMPS | `9.1.1` |
-| 构建环境 | JDK 17，编译目标 Java 11 |
+| 构建环境 | JDK 17，编译目标 Java 17（class major version 61） |
 | 开发商 | 未配置名称和网址 |
 
 ## 创建命令
@@ -31,11 +31,10 @@ atlas-create-jira-plugin --group-id igsl.com --artifact-id jira-workflow-inherit
 在本目录执行（首次需要联网下载依赖）：
 
 ```powershell
-$env:ATLAS_OPTS = "$env:ATLAS_OPTS -Dmaven.repo.local=D:/code/pluginforjira/.maven/repository"
-atlas-package -B -ntp '-Dmaven.repo.local=D:/code/pluginforjira/.maven/repository'
+atlas-mvn package -B -ntp '-Dmaven.repo.local=D:/code/pluginforjira/.maven/repository'
 ```
 
-`ATLAS_OPTS` 同时为 SDK 前置插件解析指定仓库；仅传命令行参数时，该前置步骤仍可能访问默认仓库。这里只设置当前 PowerShell 会话变量，不修改全局配置。依赖齐全后可添加 `-o` 离线打包；仍需检查日志中的最终 `BUILD SUCCESS`，SDK 脚本在前置失败时可能返回 0。
+使用 SDK 自带的 Maven 包装命令，避免 `atlas-package` 前置解析访问默认仓库。依赖齐全后可添加 `-o` 离线打包；需同时检查进程退出码和日志中的最终 `BUILD SUCCESS`。
 
 成功后主插件产物为 `target/jira-workflow-inheritance-1.0.0-SNAPSHOT.jar`。示例单元测试不代表业务功能或 DC 多节点兼容性验收。
 
@@ -47,7 +46,9 @@ atlas-mvn package -B -ntp '-Dmaven.repo.local=D:/code/pluginforjira/.maven/repos
 
 ## 本次验证结果
 
-2026-09-28：使用 `atlas-mvn package -o -B -ntp` 及上述仓库参数完成离线打包，`BUILD SUCCESS`。25 项单元测试通过（24 项业务规则测试、1 项官方示例测试），失败、错误和跳过均为 0。主插件与测试插件描述文件均无 `vendor` 节点。未启动 Jira，未运行容器内集成测试或 DC 多节点测试。
+2026-09-29：编译目标切换为 Java 17。构建及测试结果见 [实现记录](docs/implementation-status.md)。未启动 Jira，未运行容器内集成测试或 DC 多节点测试。安装目标 Jira 也必须使用 Java 17；该产物不能在 Java 11 上加载。
+
+管理员入口：`<Jira 基础地址>/rest/workflow-inheritance/1.0/admin/console`。必须具有 Jira 管理员权限。先初始化进度字段，再配置父工作流各状态百分比并确认规则生效。结构同步预览不修改或发布原生工作流。
 
 ## 后续本地运行
 

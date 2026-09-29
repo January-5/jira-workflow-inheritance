@@ -10,6 +10,14 @@ import java.util.Set;
 import static org.junit.Assert.*;
 
 public class ProgressRulesTest {
+    @Test(expected = IllegalArgumentException.class) public void rejectsMoreThanTwoDecimalPlaces() {
+        new PublishedProgressRules("p", "v1", Set.of("A"), Map.of("A", new BigDecimal("60.251")), Set.of(), Map.of());
+    }
+    @Test public void acceptsTwoDecimalPlacesAndTrailingZerosWithoutRounding() {
+        PublishedProgressRules rules = new PublishedProgressRules("p", "v1", Set.of("A"),
+                Map.of("A", new BigDecimal("60.250")), Set.of(), Map.of());
+        assertEquals(0, rules.progressAt("A").compareTo(new BigDecimal("60.25")));
+    }
     private static BigDecimal n(int value) { return BigDecimal.valueOf(value); }
     private PublishedProgressRules rules(String revision, int b) {
         return new PublishedProgressRules("child", revision, Set.of("A", "B", "C"),

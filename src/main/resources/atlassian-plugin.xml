@@ -8,6 +8,24 @@
 
     <!-- add our i18n resource -->
     <resource type="i18n" name="i18n" location="jira-workflow-inheritance"/>
+    <rest key="workflow-inheritance-rest" path="workflow-inheritance" version="1.0">
+        <description>Jira administrator workflow inheritance configuration</description>
+    </rest>
+    <web-item key="workflow-inheritance-admin" section="system.admin/globalsettings" weight="200">
+        <label>工作流继承与进度管理</label>
+        <link linkId="workflow-inheritance-admin-link">/rest/workflow-inheritance/1.0/admin/console</link>
+        <condition class="igsl.com.jira.workflow.jira.AdminCondition"/>
+    </web-item>
+    <customfield-type key="progress-field" name="工作流进度" class="igsl.com.jira.workflow.jira.ProgressFieldType">
+        <description>系统维护的已保存进度百分比，配置发布及查询不会重新计算。</description>
+        <resource type="velocity" name="view" location="templates/progress-view.vm"/>
+        <resource type="velocity" name="xml" location="templates/plugins/fields/xml/xml-number.vm"/>
+    </customfield-type>
+    <customfield-searcher key="progress-searcher" name="工作流进度数值查询" class="com.atlassian.jira.issue.customfields.searchers.NumberRangeSearcher">
+        <resource type="velocity" name="search" location="templates/plugins/fields/edit-searcher/search-number-range.vm"/>
+        <resource type="velocity" name="view" location="templates/plugins/fields/view-searcher/view-searcher-number-range.vm"/>
+        <valid-customfield-type package="${atlassian.plugin.key}" key="progress-field"/>
+    </customfield-searcher>
     
     <!-- add our web resources -->
     <web-resource key="jira-workflow-inheritance-resources" name="jira-workflow-inheritance Web Resources">

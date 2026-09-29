@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>工作流继承与进度管理</title><link rel="stylesheet" href="console.css"><script src="console.js" defer></script></head>
+<body><main>
+<h1>工作流继承与进度管理</h1>
+<p>进度由管理员配置。确认配置生效不会重算已有 Issue。</p>
+<p class="notice">开发预览：已提供关系创建、进度配置、结构合并预览和流转事件进度写入。结构自动发布及原生编辑保护尚未完成，仍需 Jira 实例验证。</p>
+<div id="message" role="status" aria-live="polite"></div>
+<p><button id="setup-field" type="button">初始化进度字段</button> <span id="field-info"></span></p>
+<section aria-label="选择工作流">
+<form id="search-form"><label>搜索工作流 <input id="query" maxlength="255"></label><button>搜索</button></form>
+<div class="row"><label>工作流 <select id="workflows"><option value="">请选择</option></select></label>
+<button id="previous" type="button">上一页</button><button id="next" type="button">下一页</button></div>
+</section>
+<section id="details" hidden>
+<h2 id="workflow-name"></h2><p id="workflow-status"></p>
+<form id="progress-form">
+<table><thead><tr><th>状态</th><th>配置进度 / 所属父阶段</th><th>已生效进度</th></tr></thead><tbody id="states"></tbody></table>
+<div class="row"><button>保存进度草稿</button><button id="activate" type="button">确认进度规则生效</button>
+<button id="retry" type="button">重试进度同步</button><button id="preview-sync" type="button">预览结构同步</button><button id="resolve" type="button">确认已处理并校验规则</button></div>
+</form>
+<pre id="sync-preview" hidden></pre>
+<form id="child-form"><h3>创建子流程</h3><label>名称 <input id="child-name" required maxlength="255"></label>
+<label>说明 <input id="child-description" maxlength="2000"></label><button>创建</button></form>
+<h3>操作记录</h3><button id="audit-refresh" type="button">刷新记录</button><ol id="audit"></ol>
+</section>
+<section><h2>进度恢复</h2><p>重试使用原流转记录，不执行 Issue 流转，也不按最新配置重新计算。</p>
+<button id="recovery-refresh" type="button">刷新待恢复记录</button><button id="recovery-next" type="button" disabled>下一页</button>
+<table><thead><tr><th>Issue ID</th><th>工作流 / 目标状态</th><th>状态 / 原因</th><th>操作</th></tr></thead><tbody id="recoveries"></tbody></table>
+</section>
+</main></body></html>

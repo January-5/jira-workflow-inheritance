@@ -36,6 +36,9 @@ public final class PublishedProgressRules {
                     || value.compareTo(BigDecimal.valueOf(100)) > 0) {
                 throw new IllegalArgumentException("Progress must be configured between 0 and 100: " + status);
             }
+            if (value.stripTrailingZeros().scale() > 2) {
+                throw new IllegalArgumentException("Progress supports at most two decimal places: " + status);
+            }
         });
         Map<String, String> stages = new LinkedHashMap<>(extensionStages);
         stages.forEach((extension, stage) -> {

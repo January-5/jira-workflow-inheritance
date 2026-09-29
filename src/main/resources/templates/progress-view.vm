@@ -1,0 +1,3 @@
+#if($value || $value == 0)
+<span class="workflow-progress">$textutils.htmlEncode($value.toString())%</span>
+#end
